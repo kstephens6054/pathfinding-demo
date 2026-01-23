@@ -10,7 +10,9 @@ document.querySelector('#app').innerHTML = `
 `;
 
 const drawableGridElement = new DrawableGrid();
-drawableGridElement.setAttribute("rows", 100);
-drawableGridElement.setAttribute("columns", 100);
+drawableGridElement.setAttribute("width", "320px");
+drawableGridElement.setAttribute("height", "240px");
+drawableGridElement.setAttribute("rows", 24);
+drawableGridElement.setAttribute("columns", 32);
 
 document.querySelector('#grid-container').appendChild(drawableGridElement);
