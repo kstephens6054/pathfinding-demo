@@ -18,19 +18,19 @@ class DrawableGrid extends HTMLElement {
       <div id="controls" part="controls">
         <div class="form-field">
           <label for="width-input">Canvas width</label>
-          <input id="width-input" type="number" min="0" max="4096" value="100" />
+          <input id="width-input" type="number" min="120" max="4096" value="100" />
         </div>
         <div class="form-field">
           <label for="height-input">Canvas height</label>
-          <input id="height-input" type="number" min="0" max="4096" value="100" />
+          <input id="height-input" type="number" min="80" max="4096" value="100" />
         </div>
         <div class="form-field">
           <label for="columns-input">Grid columns</label>
-          <input id="columns-input" type="number" min="0" max="4096" value="100" />
+          <input id="columns-input" type="number" min="2" max="1024" value="100" />
         </div>
         <div class="form-field">
           <label for="rows-input">Grid rows</label>
-          <input id="rows-input" type="number" min="0" max="4096" value="100" />
+          <input id="rows-input" type="number" min="2" max="1024" value="100" />
         </div>
         <div class="form-field">
           <label for="pen-color-input">Pen color</label>
@@ -38,11 +38,11 @@ class DrawableGrid extends HTMLElement {
         </div>
         <div class="form-field">
           <label for="background-color-input">Background color</label>
-          <input id="background-color-input" type="color" value="#FFFFFF" />
+          <input id="background-color-input" type="color" value="#ffffff" />
         </div>
         <div class="form-field">
           <label for="grid-color-input">Grid color</label>
-          <input id="grid-color-input" type="color" value="#FFFFFF" />
+          <input id="grid-color-input" type="color" value="#6e87ff" />
         </div>
         <div class="form-field">
           <label for="show-grid-input">Show grid</label>
