@@ -80,22 +80,65 @@ class DrawableGrid extends HTMLElement {
       this.handleBackgroundColorChange.bind(this);
     this.handleGridColorChange = this.handleGridColorChange.bind(this);
     this.handleShowGridChange = this.handleShowGridChange.bind(this);
+    this.handleMouseDown = this.handleMouseDown.bind(this);
+    this.handleMouseUp = this.handleMouseUp.bind(this);
+    this.handleMouseMove = this.handleMouseMove.bind(this);
+
+    this.controller = null;
+
+    this.isDrawing = false;
+    this.dataGrid = [];
   }
 
   connectedCallback() {
     console.log("Custom element added to page.");
 
-    this.widthInput.addEventListener("change", this.handleWidthChange);
-    this.heightInput.addEventListener("change", this.handleHeightChange);
-    this.columnsInput.addEventListener("change", this.handleColumnsChange);
-    this.rowsInput.addEventListener("change", this.handleRowsChange);
-    this.penColorInput.addEventListener("change", this.handlePenColorChange);
+    this.controller = new AbortController();
+    const options = { signal: this.controller.signal };
+
+    this.widthInput.addEventListener("change", this.handleWidthChange, options);
+
+    this.heightInput.addEventListener(
+      "change",
+      this.handleHeightChange,
+      options,
+    );
+
+    this.columnsInput.addEventListener(
+      "change",
+      this.handleColumnsChange,
+      options,
+    );
+
+    this.rowsInput.addEventListener("change", this.handleRowsChange, options);
+
+    this.penColorInput.addEventListener(
+      "change",
+      this.handlePenColorChange,
+      options,
+    );
+
     this.backgroundColorInput.addEventListener(
       "change",
       this.handleBackgroundColorChange,
+      options,
     );
-    this.gridColorInput.addEventListener("change", this.handleGridColorChange);
-    this.showGridInput.addEventListener("change", this.handleShowGridChange);
+
+    this.gridColorInput.addEventListener(
+      "change",
+      this.handleGridColorChange,
+      options,
+    );
+
+    this.showGridInput.addEventListener(
+      "change",
+      this.handleShowGridChange,
+      options,
+    );
+
+    this.canvas.addEventListener("mousedown", this.handleMouseDown, options);
+    this.canvas.addEventListener("mousemove", this.handleMouseMove, options);
+    document.addEventListener("mouseup", this.handleMouseUp, options);
 
     this.updateCanvas();
     this.updateControls();
@@ -104,20 +147,10 @@ class DrawableGrid extends HTMLElement {
   disconnectedCallback() {
     console.log("Custom element removed from page.");
 
-    this.widthInput.removeEventListener("change", this.handleWidthChange);
-    this.heightInput.removeEventListener("change", this.handleHeightChange);
-    this.columnsInput.removeEventListener("change", this.handleColumnsChange);
-    this.rowsInput.removeEventListener("change", this.handleRowsChange);
-    this.penColorInput.removeEventListener("change", this.handlePenColorChange);
-    this.backgroundColorInput.removeEventListener(
-      "change",
-      this.handleBackgroundColorChange,
-    );
-    this.gridColorInput.removeEventListener(
-      "change",
-      this.handleGridColorChange,
-    );
-    this.showGridInput.removeEventListener("change", this.handleShowGridChange);
+    if (this.controller) {
+      this.controller.abort();
+      this.controller = null;
+    }
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -233,6 +266,30 @@ class DrawableGrid extends HTMLElement {
       ctx.lineTo(this.canvas.width, y);
       ctx.stroke();
     }
+  }
+
+  handleMouseMove(event) {
+    const [column, row] = this.getGridCell(event.clientX, event.clientY);
+    console.log(`Mouse moved to (${column}, ${row}) on the canvas.`);
+  }
+
+  handleMouseDown(event) {
+    const [column, row] = this.getGridCell(event.clientX, event.clientY);
+    console.log(`Mouse down at (${column}, ${row}) on the canvas.`);
+    this.isDrawing = true;
+  }
+
+  handleMouseUp(event) {
+    const [column, row] = this.getGridCell(event.clientX, event.clientY);
+    console.log(`Mouse up at (${column}, ${row}) on the canvas.`);
+    this.isDrawing = false;
+  }
+
+  getGridCell(x, y) {
+    const rect = this.canvas.getBoundingClientRect();
+    const column = Math.floor(this.columns * ((x - rect.left) / rect.width));
+    const row = Math.floor(this.rows * ((y - rect.top) / rect.height));
+    return [column, row];
   }
 
   updateControls() {
