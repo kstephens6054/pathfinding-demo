@@ -1,3 +1,5 @@
+import drawableGridStyles from "./DrawableGrid.css" with { type: "css" };
+
 class DrawableGrid extends HTMLElement {
   static observedAttributes = [
     "width",
@@ -53,20 +55,21 @@ class DrawableGrid extends HTMLElement {
   constructor() {
     super();
 
-    this.attachShadow({ mode: "open" });
-    this.shadowRoot.innerHTML = DrawableGrid.#innerHTML;
+    const shadowRoot = this.attachShadow({ mode: "open" });
+    shadowRoot.innerHTML = DrawableGrid.#innerHTML;
+    shadowRoot.adoptedStyleSheets.push(drawableGridStyles);
 
-    const root = this.shadowRoot;
-
-    this.canvas = root.getElementById("canvas");
-    this.widthInput = root.getElementById("width-input");
-    this.heightInput = root.getElementById("height-input");
-    this.columnsInput = root.getElementById("columns-input");
-    this.rowsInput = root.getElementById("rows-input");
-    this.penColorInput = root.getElementById("pen-color-input");
-    this.backgroundColorInput = root.getElementById("background-color-input");
-    this.gridColorInput = root.getElementById("grid-color-input");
-    this.showGridInput = root.getElementById("show-grid-input");
+    this.canvas = shadowRoot.getElementById("canvas");
+    this.widthInput = shadowRoot.getElementById("width-input");
+    this.heightInput = shadowRoot.getElementById("height-input");
+    this.columnsInput = shadowRoot.getElementById("columns-input");
+    this.rowsInput = shadowRoot.getElementById("rows-input");
+    this.penColorInput = shadowRoot.getElementById("pen-color-input");
+    this.backgroundColorInput = shadowRoot.getElementById(
+      "background-color-input",
+    );
+    this.gridColorInput = shadowRoot.getElementById("grid-color-input");
+    this.showGridInput = shadowRoot.getElementById("show-grid-input");
 
     this.handleWidthChange = this.handleWidthChange.bind(this);
     this.handleHeightChange = this.handleHeightChange.bind(this);
@@ -199,7 +202,6 @@ class DrawableGrid extends HTMLElement {
   }
 
   updateControls() {
-    const root = this.shadowRoot;
     this.widthInput.value = this.width;
     this.heightInput.value = this.height;
     this.columnsInput.value = this.columns;

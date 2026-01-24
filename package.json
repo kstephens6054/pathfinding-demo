@@ -10,5 +10,9 @@
   },
   "devDependencies": {
     "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "@arcmantle/vite-plugin-import-css-sheet": "^1.0.12",
+    "typescript": "^5.9.3"
   }
 }
