@@ -12,6 +12,13 @@ class DrawableGrid extends HTMLElement {
     "show-grid",
   ];
 
+  static invalidatingAttributes = new Set([
+    "width",
+    "height",
+    "columns",
+    "rows",
+  ]);
+
   static #innerHTML = `
     <div id="container" part="container">
       <canvas id="canvas" width="100" height="100"></canvas>
@@ -87,6 +94,9 @@ class DrawableGrid extends HTMLElement {
     this.controller = null;
 
     this.isDrawing = false;
+    this.isErasing = false;
+    this.isEmpty = true;
+
     this.dataGrid = [];
   }
 
@@ -140,6 +150,10 @@ class DrawableGrid extends HTMLElement {
     this.canvas.addEventListener("mousemove", this.handleMouseMove, options);
     document.addEventListener("mouseup", this.handleMouseUp, options);
 
+    this.dataGrid = Array.from({ length: this.rows }, () =>
+      Array.from({ length: this.columns }, () => this.backgroundColor),
+    );
+
     this.updateCanvas();
     this.updateControls();
   }
@@ -157,6 +171,10 @@ class DrawableGrid extends HTMLElement {
     console.log(
       `Attribute ${name} has changed from ${JSON.stringify(oldValue)} to ${JSON.stringify(newValue)}.`,
     );
+
+    if (DrawableGrid.invalidatingAttributes.has(name)) {
+      this.clearCanvas();
+    }
 
     this.updateCanvas();
     this.updateControls();
@@ -209,6 +227,8 @@ class DrawableGrid extends HTMLElement {
   }
 
   set backgroundColor(value) {
+    const oldColor = this.backgroundColor;
+    this.updateBackground(oldColor, value);
     this.setAttribute("background-color", value);
   }
 
@@ -232,14 +252,48 @@ class DrawableGrid extends HTMLElement {
   updateCanvas() {
     this.canvas.width = this.width;
     this.canvas.height = this.height;
-    this.clearCanvas();
+    this.fillCanvas();
     this.drawGrid();
   }
 
+  updateBackground(oldColor, newColor) {
+    if (this.dataGrid.length === 0) return;
+
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.columns; c++) {
+        if (this.dataGrid[r][c] === oldColor) {
+          this.dataGrid[r][c] = newColor;
+        }
+      }
+    }
+  }
+
   clearCanvas() {
+    if (this.dataGrid.length === 0) return;
+
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.columns; c++) {
+        this.dataGrid[r][c] = this.backgroundColor;
+      }
+    }
+
     const ctx = this.canvas.getContext("2d");
     ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  fillCanvas() {
+    if (this.dataGrid.length === 0) return;
+
+    const ctx = this.canvas.getContext("2d");
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.columns; c++) {
+        ctx.fillStyle = this.dataGrid[r][c] || this.backgroundColor;
+        const cellWidth = this.canvas.width / this.columns;
+        const cellHeight = this.canvas.height / this.rows;
+        ctx.fillRect(c * cellWidth, r * cellHeight, cellWidth, cellHeight);
+      }
+    }
   }
 
   drawGrid() {
@@ -270,6 +324,9 @@ class DrawableGrid extends HTMLElement {
 
   handleMouseMove(event) {
     const [column, row] = this.getGridCell(event.clientX, event.clientY);
+    if (this.isDrawing) {
+      this.fillGridCell(column, row);
+    }
     console.log(`Mouse moved to (${column}, ${row}) on the canvas.`);
   }
 
@@ -290,6 +347,40 @@ class DrawableGrid extends HTMLElement {
     const column = Math.floor(this.columns * ((x - rect.left) / rect.width));
     const row = Math.floor(this.rows * ((y - rect.top) / rect.height));
     return [column, row];
+  }
+
+  fillGridCell(column, row) {
+    if (row < 0 || row >= this.rows || column < 0 || column >= this.columns) {
+      return;
+    }
+    const ctx = this.canvas.getContext("2d");
+    const cellWidth = this.canvas.width / this.columns;
+    const cellHeight = this.canvas.height / this.rows;
+    ctx.fillStyle = this.penColor;
+    ctx.fillRect(column * cellWidth, row * cellHeight, cellWidth, cellHeight);
+    this.dataGrid[row][column] = this.penColor;
+
+    if (this.showGrid) {
+      ctx.strokeStyle = this.gridColor;
+      ctx.strokeRect(
+        column * cellWidth,
+        row * cellHeight,
+        cellWidth,
+        cellHeight,
+      );
+    }
+  }
+
+  clearGridCell(column, row) {
+    if (row < 0 || row >= this.rows || column < 0 || column >= this.columns) {
+      return;
+    }
+    const ctx = this.canvas.getContext("2d");
+    const cellWidth = this.canvas.width / this.columns;
+    const cellHeight = this.canvas.height / this.rows;
+    ctx.fillStyle = this.backgroundColor;
+    ctx.fillRect(column * cellWidth, row * cellHeight, cellWidth, cellHeight);
+    this.dataGrid[row][column] = null;
   }
 
   updateControls() {
