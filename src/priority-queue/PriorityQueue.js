@@ -1,9 +1,6 @@
-const QueueNode = (key, item) => {
-  return {
-    key: key,
-    item: item,
-  };
-};
+import { transformWithEsbuild } from "vite";
+
+const QueueNode = (key, item) => ({ key, item });
 
 class PriorityQueue {
   static parent(i) {
@@ -18,30 +15,36 @@ class PriorityQueue {
     return 2 * i + 2;
   }
 
-  constructor(items, compare) {
-    this.items = items || [];
+  constructor(nodes, compare) {
+    this.nodes = nodes || [];
     this.compare = compare;
     this.indexMap = new Map();
 
-    items.forEach((item, index) => {
-      this.indexMap.set(item.key, index);
+    nodes.forEach((node, index) => {
+      this.indexMap.set(node.key, index);
     });
+
+    this.heapify();
+  }
+  get length() {
+    return this.nodes.length;
   }
 
   swap(i, j) {
-    const temp = this.items[i];
-    this.items[i] = this.items[j];
-    this.items[j] = temp;
-
-    this.indexMap.set(this.items[i].key, i);
-    this.indexMap.set(this.items[j].key, j);
+    const temp = this.nodes[i];
+    this.nodes[i] = this.nodes[j];
+    this.nodes[j] = temp;
+    this.indexMap.set(this.nodes[i].key, i);
+    this.indexMap.set(this.nodes[j].key, j);
   }
 
   bubbleUp(index) {
     while (
       index > 0 &&
-      this.compare(this.items[index], this.items[PriorityQueue.parent(index)]) <
-        0
+      this.compare(
+        this.nodes[index].item,
+        this.nodes[PriorityQueue.parent(index)].item,
+      ) < 0
     ) {
       const parentIndex = PriorityQueue.parent(index);
       this.swap(index, parentIndex);
@@ -50,22 +53,27 @@ class PriorityQueue {
   }
 
   bubbleDown(index) {
-    const size = this.items.length;
     while (true) {
       const leftIndex = PriorityQueue.leftChild(index);
       const rightIndex = PriorityQueue.rightChild(index);
       let smallestIndex = index;
 
       if (
-        leftIndex < size &&
-        this.compare(this.items[leftIndex], this.items[smallestIndex]) < 0
+        leftIndex < this.length &&
+        this.compare(
+          this.nodes[leftIndex].item,
+          this.nodes[smallestIndex].item,
+        ) < 0
       ) {
         smallestIndex = leftIndex;
       }
 
       if (
-        rightIndex < size &&
-        this.compare(this.items[rightIndex], this.items[smallestIndex]) < 0
+        rightIndex < this.length &&
+        this.compare(
+          this.nodes[rightIndex].item,
+          this.nodes[smallestIndex].item,
+        ) < 0
       ) {
         smallestIndex = rightIndex;
       }
@@ -80,7 +88,7 @@ class PriorityQueue {
   }
 
   heapify() {
-    const start = PriorityQueue.parent(this.items.length - 1);
+    const start = PriorityQueue.parent(this.length - 1);
     for (let i = start; i >= 0; i--) {
       this.bubbleDown(i);
     }
@@ -88,21 +96,26 @@ class PriorityQueue {
 
   enqueue(key, item) {
     const node = QueueNode(key, item);
-    this.items.push(node);
-    const index = this.items.length - 1;
-    this.indexMap.set(key, index);
+    this.nodes.push(node);
+    const index = this.nodes.length - 1;
+    this.indexMap.set(node.key, index);
     this.bubbleUp(index);
   }
 
   dequeue() {
-    if (this.items.length === 0) {
+    if (this.nodes.length === 0) {
       return null;
     }
+    const root = this.nodes[0];
+    if (this.length === 1) {
+      this.nodes.pop();
+      this.indexMap.delete(root.key);
+      return root.item;
+    }
 
-    const root = this.items[0];
-    const lastIndex = this.items.length - 1;
+    const lastIndex = this.nodes.length - 1;
     this.swap(0, lastIndex);
-    this.items.pop();
+    this.nodes.pop();
     this.indexMap.delete(root.key);
     this.bubbleDown(0);
 
@@ -114,21 +127,25 @@ class PriorityQueue {
     if (index === undefined) {
       return;
     }
-
-    this.items[index].item = newItem;
-    const lastIndex = this.items.length - 1;
-    this.swap(index, lastIndex);
+    this.nodes[index] = QueueNode(key, newItem);
+    const parentIndex = PriorityQueue.parent(index);
+    if (
+      index > 0 &&
+      this.compare(this.nodes[index].item, this.nodes[parentIndex].item) < 0
+    ) {
+      this.bubbleUp(index);
+      return;
+    }
     this.bubbleDown(index);
-    this.bubbleUp(index);
   }
 
   isEmpty() {
-    return this.items.length === 0;
+    return this.nodes.length === 0;
   }
 
   peek() {
-    return this.items.length > 0 ? this.items[0].item : null;
+    return this.nodes.length > 0 ? this.nodes[0].item : null;
   }
 }
 
-export default PriorityQueue;
+export { PriorityQueue, QueueNode };
