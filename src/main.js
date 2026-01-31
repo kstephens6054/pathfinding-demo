@@ -1,5 +1,5 @@
 import "./style.css";
-import * as _GridDisplayModule from "./GridDisplay/GridDisplay.js";
+import { _GridDisplay } from "./GridDisplay/index.js";
 
 document.querySelector("#app").innerHTML = `
   <div class="container">
