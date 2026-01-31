@@ -35,7 +35,7 @@ class GridDisplay extends HTMLElement {
     super();
     const root = this.attachShadow({ mode: "open" });
     root.adoptedStyleSheets = [GridDisplayStyles];
-    root.innerHTML = GridDisplay._innerHTML();
+    root.innerHTML = GridDisplay._innerHTML;
 
     this._canvas = root.querySelector("#canvas");
     this._context = this._canvas.getContext("2d");
