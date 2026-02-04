@@ -1,3 +1,4 @@
+import { kebabToCamelCase } from "../utilities";
 import GridDisplayStyles from "./GridDisplay.css" with { type: "css" };
 
 class GridDisplay extends HTMLElement {
@@ -142,13 +143,11 @@ class GridDisplay extends HTMLElement {
    */
 
   connectedCallback() {
-    console.log("GridDisplay connected to the DOM");
+    // Initialize attributes with default values if not already set
     for (const attr of GridDisplay.observedAttributes) {
+      const propertyName = `_${kebabToCamelCase(attr)}`;
       if (!this.hasAttribute(attr)) {
-        const privateName = attr.replaceAll(/-([a-z])/gi, (_match, letter) =>
-          letter.toUpperCase(),
-        );
-        this.setAttribute(attr, this[`_${privateName}`]);
+        this.setAttribute(attr, this[propertyName]);
       }
     }
     this._updateCanvas();
