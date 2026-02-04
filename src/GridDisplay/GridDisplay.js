@@ -200,6 +200,13 @@ class GridDisplay extends HTMLElement {
     this._columns = parseInt(newValue);
   }
 
+  _updateCanvas() {
+    this._canvas.width = this.width;
+    this._canvas.height = this.height;
+    this._canvasWrapper.style.width = `${this.width}px`;
+    this._canvasWrapper.style.height = `${this.height}px`;
+  }
+
   _clearGridData() {
     this._gridData = Array.from({ length: this._rows }, () =>
       Array.from({ length: this._columns }, () => this._backgroundColor),
