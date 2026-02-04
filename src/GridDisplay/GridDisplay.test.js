@@ -6,17 +6,8 @@ const { JSDOM } = jsdom;
 describe("GridDisplay Component", () => {
   let gridDisplay;
   let root;
-  let dom;
 
   beforeEach(() => {
-    // dom = new JSDOM(`<!DOCTYPE html><html><body></body></html>`, {
-    //   url: "http://localhost/",
-    // });
-    // global.window = dom.window;
-    // global.document = dom.window.document;
-    // global.document.innerHTML = `
-    // <div id="root"></div>
-    // `;
     document.body.innerHTML = `<div id="root"></div>`;
   });
 
@@ -35,7 +26,7 @@ describe("GridDisplay Component", () => {
   });
 
   it("should initialize with default properties", () => {
-    root = global.document.getElementById("root");
+    root = document.getElementById("root");
     root.innerHTML = `<grid-display></grid-display>`;
     const gridDisplayElement = root.querySelector("grid-display");
 
@@ -51,15 +42,30 @@ describe("GridDisplay Component", () => {
   });
 
   it("should update width and height properties", () => {
-    gridDisplay = new GridDisplay();
+    const testParams = {
+      oldWidth: 1024,
+      oldHeight: 768,
+      newWidth: 1920,
+      newHeight: 1080,
+    };
     root = document.getElementById("root");
-    root.appendChild(gridDisplay);
+    root.innerHTML = `<grid-display
+      width="${testParams.oldWidth}"
+      height="${testParams.oldHeight}"
+      ></grid-display>
+    `;
 
-    gridDisplay.width = 500;
-    gridDisplay.height = 400;
+    root = document.getElementById("root");
+    const gridDisplayElement = root.querySelector("grid-display");
 
-    expect(gridDisplay.width).toBe(500);
-    expect(gridDisplay.height).toBe(400);
+    expect(gridDisplayElement.width).toBe(testParams.oldWidth);
+    expect(gridDisplayElement.height).toBe(testParams.oldHeight);
+
+    gridDisplayElement.width = testParams.newWidth;
+    gridDisplayElement.height = testParams.newHeight;
+
+    expect(gridDisplayElement.width).toBe(testParams.newWidth);
+    expect(gridDisplayElement.height).toBe(testParams.newHeight);
   });
 
   it("should pass this test", () => {
