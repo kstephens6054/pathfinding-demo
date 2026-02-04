@@ -1,14 +1,13 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { screen } from "@testing-library/dom";
+import { describe, it, beforeEach, expect } from "vitest";
 import { GridDisplay } from "./GridDisplay";
-import jsdom from "jsdom";
-const { JSDOM } = jsdom;
 
 describe("GridDisplay Component", () => {
-  let gridDisplay;
   let root;
 
   beforeEach(() => {
     document.body.innerHTML = `<div id="root"></div>`;
+    root = document.getElementById("root");
   });
 
   it("should be defined in the custom elements registry", () => {
@@ -18,27 +17,28 @@ describe("GridDisplay Component", () => {
   });
 
   it("should render from html", () => {
-    root = document.getElementById("root");
-    console.log(document);
     root.innerHTML = `<grid-display></grid-display>`;
-    const gridDisplayElement = root.querySelector("grid-display");
-    expect(gridDisplayElement).toBeInstanceOf(GridDisplay);
+    expect(
+      screen.getByRole("image", { name: "Grid Display" }),
+    ).toBeInTheDocument();
   });
 
   it("should initialize with default properties", () => {
-    root = document.getElementById("root");
     root.innerHTML = `<grid-display></grid-display>`;
-    const gridDisplayElement = root.querySelector("grid-display");
+    const element = screen.getByRole("image", {
+      name: "Grid Display",
+    });
+    const expected = { ...GridDisplay.defaults };
 
-    expect(gridDisplayElement.width).toBe(GridDisplay.defaults.width);
-    expect(gridDisplayElement.height).toBe(GridDisplay.defaults.height);
-    expect(gridDisplayElement.rows).toBe(GridDisplay.defaults.rows);
-    expect(gridDisplayElement.columns).toBe(GridDisplay.defaults.columns);
-    expect(gridDisplayElement.backgroundColor).toBe(
-      GridDisplay.defaults.backgroundColor,
+    expect(element).toHaveAttribute("width", `${expected.width}`);
+    expect(element).toHaveAttribute("height", `${expected.height}`);
+    expect(element).toHaveAttribute("columns", `${expected.columns}`);
+    expect(element).toHaveAttribute(
+      "background-color",
+      `${expected.backgroundColor}`,
     );
-    expect(gridDisplayElement.gridColor).toBe(GridDisplay.defaults.gridColor);
-    expect(gridDisplayElement.showGrid).toBe(GridDisplay.defaults.showGrid);
+    expect(element).toHaveAttribute("grid-color", `${expected.gridColor}`);
+    expect(element).toHaveAttribute("show-grid", `${expected.showGrid}`);
   });
 
   it("should update width and height properties", () => {
@@ -48,7 +48,7 @@ describe("GridDisplay Component", () => {
       newWidth: 1920,
       newHeight: 1080,
     };
-    root = document.getElementById("root");
+
     root.innerHTML = `<grid-display
       data-testid="grid-display"
       width="${testParams.oldWidth}"
@@ -56,23 +56,17 @@ describe("GridDisplay Component", () => {
       ></grid-display>
     `;
 
-    expect(
-      root.querySelector(`grid-display[width="${testParams.oldWidth}"]`),
-    ).toBeDefined();
-    expect(
-      root.querySelector(`grid-display[height="${testParams.oldHeight}"]`),
-    ).toBeDefined();
+    const element = screen.getByRole("image", {
+      name: "Grid Display",
+    });
 
-    const gridDisplayElement = root.querySelector("grid-display");
-    gridDisplayElement.width = testParams.newWidth;
-    gridDisplayElement.height = testParams.newHeight;
-    console.log(gridDisplayElement);
+    expect(element).toHaveAttribute("width", `${testParams.oldWidth}`);
+    expect(element).toHaveAttribute("height", `${testParams.oldHeight}`);
 
-    expect(
-      root.querySelector(`grid-display[width="${testParams.newWidth}"]`),
-    ).toBeDefined();
-    expect(
-      root.querySelector(`grid-display[height="${testParams.newHeight}"]`),
-    ).toBeDefined();
+    element.width = testParams.newWidth;
+    element.height = testParams.newHeight;
+
+    expect(element).toHaveAttribute("width", `${testParams.newWidth}`);
+    expect(element).toHaveAttribute("height", `${testParams.newHeight}`);
   });
 });

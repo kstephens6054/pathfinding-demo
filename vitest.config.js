@@ -6,6 +6,6 @@ export default defineConfig({
     globals: true,
     exclude: [...configDefaults.exclude],
     include: ["src/**/*.test.js"],
-    setupFilesAfterEnv: ["src/vitest.setup.jsdom.js"],
+    setupFiles: ["src/vitest.setup.jsdom.js"],
   },
 });

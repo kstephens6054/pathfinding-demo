@@ -49,6 +49,9 @@ class GridDisplay extends HTMLElement {
     this._context = this._canvas.getContext("2d");
     this._canvasWrapper = root.querySelector("#canvas-wrapper");
     this._gridData = null;
+
+    this.setAttribute("role", "image");
+    this.setAttribute("aria-label", "Grid Display");
   }
 
   /**
@@ -139,6 +142,15 @@ class GridDisplay extends HTMLElement {
    */
 
   connectedCallback() {
+    console.log("GridDisplay connected to the DOM");
+    for (const attr of GridDisplay.observedAttributes) {
+      if (!this.hasAttribute(attr)) {
+        const privateName = attr.replaceAll(/-([a-z])/gi, (_match, letter) =>
+          letter.toUpperCase(),
+        );
+        this.setAttribute(attr, this[`_${privateName}`]);
+      }
+    }
     this._updateCanvas();
   }
 
