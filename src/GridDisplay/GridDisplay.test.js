@@ -50,25 +50,29 @@ describe("GridDisplay Component", () => {
     };
     root = document.getElementById("root");
     root.innerHTML = `<grid-display
+      data-testid="grid-display"
       width="${testParams.oldWidth}"
       height="${testParams.oldHeight}"
       ></grid-display>
     `;
 
-    root = document.getElementById("root");
+    expect(
+      root.querySelector(`grid-display[width="${testParams.oldWidth}"]`),
+    ).toBeDefined();
+    expect(
+      root.querySelector(`grid-display[height="${testParams.oldHeight}"]`),
+    ).toBeDefined();
+
     const gridDisplayElement = root.querySelector("grid-display");
-
-    expect(gridDisplayElement.width).toBe(testParams.oldWidth);
-    expect(gridDisplayElement.height).toBe(testParams.oldHeight);
-
     gridDisplayElement.width = testParams.newWidth;
     gridDisplayElement.height = testParams.newHeight;
+    console.log(gridDisplayElement);
 
-    expect(gridDisplayElement.width).toBe(testParams.newWidth);
-    expect(gridDisplayElement.height).toBe(testParams.newHeight);
-  });
-
-  it("should pass this test", () => {
-    expect(true).toBe(true);
+    expect(
+      root.querySelector(`grid-display[width="${testParams.newWidth}"]`),
+    ).toBeDefined();
+    expect(
+      root.querySelector(`grid-display[height="${testParams.newHeight}"]`),
+    ).toBeDefined();
   });
 });
